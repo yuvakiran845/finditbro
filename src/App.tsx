@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ReportedItemsProvider } from "@/hooks/useReportedItems";
-import RecentReportsNotification from "@/components/RecentReportsNotification";
 import Index from "./pages/Index";
 import LostItems from "./pages/LostItems";
 import FoundItems from "./pages/FoundItems";
@@ -29,7 +28,6 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-        <RecentReportsNotification />
       </TooltipProvider>
     </ReportedItemsProvider>
   </QueryClientProvider>
