@@ -1,25 +1,26 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Shield, Clock } from "lucide-react";
+import { ArrowRight, Sparkles, Shield, Clock, AlertTriangle, CheckCircle, MapPin, Package } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import ItemCard, { Item } from "@/components/ItemCard";
 import ItemModal from "@/components/ItemModal";
 import { Button } from "@/components/ui/button";
-import { mockLostItems, mockFoundItems } from "@/data/mockData";
+import { useReportedItems } from "@/hooks/useReportedItems";
 
 const Index = () => {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { items } = useReportedItems();
 
   const handleContact = (item: Item) => {
     setSelectedItem(item);
     setIsModalOpen(true);
   };
 
-  const recentLost = mockLostItems.slice(0, 3);
-  const recentFound = mockFoundItems.slice(0, 3);
+  const recentLost = items.filter(item => item.type === "lost").slice(0, 6);
+  const recentFound = items.filter(item => item.type === "found").slice(0, 6);
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,71 +80,105 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Recent Lost Items */}
+        {/* Recently Lost Items */}
         <section className="py-20">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  Recently Lost Items
-                </h2>
-                <p className="text-muted-foreground">
-                  Help reunite these items with their owners
-                </p>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-destructive/20 border border-destructive/30 flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-destructive" />
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                    Recently Lost Items
+                  </h2>
+                  <p className="text-muted-foreground text-sm">
+                    Help reunite these items with their owners
+                  </p>
+                </div>
               </div>
               <Link to="/lost-items">
-                <Button variant="outline">
+                <Button variant="outline" className="hidden sm:flex">
                   View All
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentLost.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="animate-fade-up"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <ItemCard item={item} onContact={handleContact} />
+            {recentLost.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recentLost.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="animate-fade-up"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <ReportedItemCard item={item} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="glass-card p-12 text-center">
+                <div className="w-20 h-20 rounded-3xl bg-destructive/10 border border-destructive/20 flex items-center justify-center mx-auto mb-6">
+                  <AlertTriangle className="w-10 h-10 text-destructive/50" />
                 </div>
-              ))}
-            </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No Lost Items Reported</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  When someone reports a lost item, it will appear here. Use the "Report Lost Item" button above to get started.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Recent Found Items */}
+        {/* Recently Found Items */}
         <section className="py-20 bg-card/50">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  Recently Found Items
-                </h2>
-                <p className="text-muted-foreground">
-                  Check if any of these belong to you
-                </p>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-success/20 border border-success/30 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-success" />
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                    Recently Found Items
+                  </h2>
+                  <p className="text-muted-foreground text-sm">
+                    Check if any of these belong to you
+                  </p>
+                </div>
               </div>
               <Link to="/found-items">
-                <Button variant="outline">
+                <Button variant="outline" className="hidden sm:flex">
                   View All
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentFound.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="animate-fade-up"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <ItemCard item={item} onContact={handleContact} />
+            {recentFound.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recentFound.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="animate-fade-up"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <ReportedItemCard item={item} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="glass-card p-12 text-center">
+                <div className="w-20 h-20 rounded-3xl bg-success/10 border border-success/20 flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle className="w-10 h-10 text-success/50" />
                 </div>
-              ))}
-            </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No Found Items Reported</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  When someone reports a found item, it will appear here. Use the "Report Found Item" button above to get started.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -190,6 +225,87 @@ const Index = () => {
           setSelectedItem(null);
         }}
       />
+    </div>
+  );
+};
+
+// Reported Item Card Component
+const ReportedItemCard = ({ item }: { item: ReturnType<typeof useReportedItems>['items'][0] }) => {
+  return (
+    <div className="group relative">
+      {/* Glow effect */}
+      <div className={`absolute -inset-1 rounded-3xl blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 ${
+        item.type === "lost" 
+          ? "bg-gradient-to-r from-destructive/50 to-destructive/20" 
+          : "bg-gradient-to-r from-success/50 to-success/20"
+      }`} />
+      
+      <div className="relative glass-card overflow-hidden card-hover">
+        {/* Type Badge */}
+        <div className={`absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-sm ${
+          item.type === "lost"
+            ? "bg-destructive/80 text-destructive-foreground"
+            : "bg-success/80 text-success-foreground"
+        }`}>
+          {item.type === "lost" ? (
+            <AlertTriangle className="w-3 h-3" />
+          ) : (
+            <CheckCircle className="w-3 h-3" />
+          )}
+          {item.type}
+        </div>
+
+        {/* Image */}
+        <div className="relative h-48 overflow-hidden">
+          {item.image ? (
+            <img
+              src={item.image}
+              alt={item.itemName}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          ) : (
+            <div className={`w-full h-full flex items-center justify-center ${
+              item.type === "lost" 
+                ? "bg-gradient-to-br from-destructive/20 to-destructive/5" 
+                : "bg-gradient-to-br from-success/20 to-success/5"
+            }`}>
+              <Package className="w-16 h-16 text-muted-foreground/30" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+        </div>
+
+        {/* Content */}
+        <div className="p-5">
+          <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+            {item.itemName}
+          </h3>
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+            {item.description}
+          </p>
+
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-primary" />
+              {item.location.split(',')[0]}
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3 text-primary" />
+              {item.date}
+            </span>
+          </div>
+
+          {/* Reporter */}
+          <div className="mt-4 pt-4 border-t border-border/30 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">
+              By <span className="text-foreground font-medium">{item.reporterName}</span>
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {item.time}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
